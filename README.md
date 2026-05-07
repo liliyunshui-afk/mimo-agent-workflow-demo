@@ -4,11 +4,13 @@
 
 ## 在线演示
 
-GitHub Pages 地址预计为：
+GitHub Pages 地址：
 
 https://liliyunshui-afk.github.io/mimo-agent-workflow-demo/
 
-如果页面暂时不可访问，请在仓库 `Settings -> Pages` 中选择 `Deploy from a branch`，分支选择 `main`，目录选择 `/root`。
+GitHub 项目地址：
+
+https://github.com/liliyunshui-afk/mimo-agent-workflow-demo
 
 ## 项目用途
 
@@ -30,7 +32,7 @@ python workflow_demo.py
 
 ## 网页 Demo
 
-直接打开 `index.html` 即可查看本地静态 Demo。它也可以部署到 GitHub Pages、Vercel、Netlify 或任意静态网站托管服务。
+直接打开 `index.html` 即可查看本地静态 Demo。当前仓库也已通过 GitHub Pages 发布为在线演示页。
 
 ## 说明
 
