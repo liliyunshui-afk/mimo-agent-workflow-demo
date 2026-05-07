@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MiMo Agent 工作流助手 Demo</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --ink: #132238;
+      --muted: #64748b;
+      --line: #d8e0ea;
+      --panel: #ffffff;
+      --teal: #0ea5a4;
+      --blue: #2563eb;
+      --amber: #f59e0b;
+      --rose: #ef4444;
+      --violet: #7c3aed;
+      --green: #16a34a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+    }
+    aside {
+      background: #132238;
+      color: white;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.25;
+    }
+    .sub {
+      margin: 0;
+      color: #cbd5e1;
+      line-height: 1.65;
+      font-size: 14px;
+    }
+    .status {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric {
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,.06);
+    }
+    .metric b {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .metric span {
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+    main {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+      grid-template-rows: auto auto 1fr;
+    }
+    .toolbar, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .toolbar {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 86px;
+      resize: vertical;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--ink);
+      font: inherit;
+      line-height: 1.55;
+    }
+    button {
+      height: 44px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 18px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+    }
+    .step {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      position: relative;
+      min-height: 108px;
+    }
+    .step::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      width: 10px;
+      height: 34px;
+      border-radius: 99px;
+      background: var(--teal);
+    }
+    .step:nth-child(2)::before { background: var(--green); }
+    .step:nth-child(3)::before { background: var(--amber); }
+    .step:nth-child(4)::before { background: var(--violet); }
+    .step:nth-child(5)::before { background: var(--rose); }
+    .step h2 {
+      margin: 0 0 8px 22px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+    .step p {
+      margin: 0 0 0 22px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+      min-height: 0;
+    }
+    .panel {
+      padding: 18px;
+      min-height: 420px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 19px;
+    }
+    .agents {
+      display: grid;
+      gap: 10px;
+    }
+    .agent {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .agent strong { font-size: 15px; }
+    .agent p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .log {
+      background: #0f172a;
+      color: #dbeafe;
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 350px;
+      overflow: auto;
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: auto;
+      width: fit-content;
+    }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside { min-height: auto; }
+      .toolbar, .workspace, .pipeline { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <h1>MiMo Agent 工作流助手 Demo</h1>
+      <p class="sub">MVP dry-run 演示：把用户目标拆成多 Agent 协作流程，并输出可检查的中间结果与终端日志。</p>
+      <div class="status">
+        <div class="metric"><b>6</b><span>子 Agent</span></div>
+        <div class="metric"><b>4</b><span>核心阶段</span></div>
+        <div class="metric"><b>50万+</b><span>日均 token 预估</span></div>
+        <div class="metric"><b>1亿</b><span>月度上限预估</span></div>
+      </div>
+      <span class="tag">Local MVP / Ready for MiMo API</span>
+    </aside>
+
+    <main>
+      <section class="toolbar">
+        <div>
+          <label for="goal">用户目标</label>
+          <textarea id="goal">基于 MiMo API 构建 AI Agent 工作流助手，用于资料整理、长文档总结、任务拆解、内容生成、代码辅助和结果校验。</textarea>
+        </div>
+        <button id="run" type="button">运行工作流</button>
+      </section>
+
+      <section class="pipeline" aria-label="Agent workflow pipeline">
+        <article class="step"><h2>意图识别</h2><p>识别资料整理、长文总结、任务拆解、代码辅助等目标类型。</p></article>
+        <article class="step"><h2>任务拆解</h2><p>生成阶段、子任务、依赖和验收标准。</p></article>
+        <article class="step"><h2>Agent 路由</h2><p>按任务类型分配给专门的子 Agent。</p></article>
+        <article class="step"><h2>多轮推理</h2><p>对子任务结果进行迭代整理、补全和改写。</p></article>
+        <article class="step"><h2>质量检查</h2><p>检查遗漏、幻觉、格式错误和不确定项。</p></article>
+      </section>
+
+      <section class="workspace">
+        <div class="panel">
+          <h2>子 Agent 输出</h2>
+          <div class="agents" id="agents"></div>
+        </div>
+        <div class="panel">
+          <h2>终端运行日志</h2>
+          <div class="log" id="log"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const agents = [
+      ["资料解析 Agent", "提取项目主题、关键场景、核心能力和可引用结论。"],
+      ["摘要生成 Agent", "生成一句话摘要、分层要点和申请材料短文案。"],
+      ["任务规划 Agent", "拆分 MVP 开发、真实 API 接入和公开 Demo 发布阶段。"],
+      ["内容生成 Agent", "生成申请说明、Demo 文案、上传材料和公开展示内容。"],
+      ["代码辅助 Agent", "生成可运行 CLI、静态网页 Demo 和后续接口适配建议。"],
+      ["质量检查 Agent", "复核材料可信度，标注 dry-run 风险与后续补充路径。"]
+    ];
+
+    const logLines = [
+      "INFO  MiMo Agent Workflow Demo started",
+      "INFO  Execution mode: local MVP dry-run",
+      "STEP  01 Intent recognition",
+      "DATA  Detected intents: 资料整理 / 长文档总结 / 任务拆解 / 内容生成 / 代码辅助 / 结果校验",
+      "STEP  02 Task decomposition",
+      "TASK  01. 收集输入资料，抽取标题、主题、关键实体和可引用结论。",
+      "TASK  02. 生成分层摘要：一句话结论、要点列表、风险与待补充信息。",
+      "TASK  03. 把用户目标拆成阶段、子任务、依赖关系和验收标准。",
+      "STEP  03 Sub-agent routing and execution",
+      "AGENT 资料解析 Agent -> 把原始目标转为结构化项目上下文",
+      "AGENT 摘要生成 Agent -> 生成可提交的短摘要和分层要点",
+      "AGENT 任务规划 Agent -> 输出 MVP 阶段计划",
+      "AGENT 代码辅助 Agent -> 提供可运行项目骨架",
+      "STEP  04 Final quality review",
+      "CHECK 目标、痛点、工作流、评测方向和 token 用量均已覆盖",
+      "WARN  当前日志为本地 MVP dry-run，真实 MiMo API 调用日志需在接入 API key 后补充",
+      "NEXT  发布 GitHub Pages 或在线 Demo，并追加脱敏运行日志"
+    ];
+
+    function render() {
+      document.querySelector("#agents").innerHTML = agents.map(([name, text]) => (
+        `<article class="agent"><strong>${name}</strong><p>${text}</p></article>`
+      )).join("");
+      const now = new Date().toLocaleString("zh-CN", { hour12: false });
+      document.querySelector("#log").textContent = logLines.map(line => `[${now}] ${line}`).join("\n");
+    }
+
+    document.querySelector("#run").addEventListener("click", render);
+    render();
+  </script>
+</body>
+</html>
